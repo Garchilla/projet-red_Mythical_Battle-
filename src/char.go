@@ -42,3 +42,4 @@ func main() {
 	c1 := initCharacter("Frank", "Elfe", 1, 100, 40, map[string]int{"potions": 3})
 	displayInfo(c1)
 }
+oui
