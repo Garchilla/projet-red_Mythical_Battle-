@@ -24,6 +24,20 @@ func initCharacter(name, class string, level, maxhp, currenthp int, inventory ma
 	}
 }
 
+func displayInfo(c character) {
+	fmt.Println("=== Informations du personnage ===")
+	fmt.Printf("Nom : %s\n", c.name)
+	fmt.Printf("Classe : %s\n", c.class)
+	fmt.Printf("Niveau : %d\n", c.level)
+	fmt.Printf("Points de vie maximum : %d\n", c.maxhp)
+	fmt.Printf("Points de vie actuels : %d\n", c.curenthp)
+	fmt.Println("Inventaire :")
+	for item, quantity := range c.inventory {
+		fmt.Printf("  - %s : %d\n", item, quantity)
+	}
+}
+	fmt.Println("================================")
+
 func main() {
 	c1 := initCharacter("Frank", "Elfe", 1, 100, 40, map[string]int{"potions": 3})
 
