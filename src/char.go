@@ -4,16 +4,21 @@ import (
 	"fmt"
 )
 
+type objects struct {
+	name     string
+	quantity int
+}
+
 type character struct {
 	name      string
 	class     string
 	level     int
 	maxhp     int
 	currenthp int
-	inventory map[string]int
+	inventory []objects
 }
 
-func initCharacter(name, class string, level, maxhp, currenthp int, inventory map[string]int) character {
+func initCharacter(name, class string, level, maxhp, currenthp int, inventory []objects) character {
 	return character{
 		name:      name,
 		class:     class,
@@ -32,13 +37,20 @@ func displayInfo(c character) {
 	fmt.Printf("Points de vie maximum : %d\n", c.maxhp)
 	fmt.Printf("Points de vie actuels : %d\n", c.currenthp)
 	fmt.Println("Inventaire :")
-	for item, quantity := range c.inventory {
-		fmt.Printf("  - %s : %d\n", item, quantity)
+	for _, item := range c.inventory {
+		fmt.Printf("  - %s : %d\n", item.name, item.quantity)
 	}
 	fmt.Println("================================")
 }
 
 func main() {
-	c1 := initCharacter("Frank", "Elfe", 1, 100, 40, map[string]int{"potions": 3})
+	c1 := initCharacter(
+		"Frank",
+		"Elfe",
+		1,
+		100,
+		40,
+		[]objects{{name: "potions", quantity: 3}},
+	)
 	displayInfo(c1)
 }
