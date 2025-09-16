@@ -1,8 +1,4 @@
-package main
-
-import (
-	"fmt"
-)
+package projetredmythicalbattle
 
 type Driver struct {
 	name        string
@@ -22,13 +18,4 @@ func initDriver(name, team string, level, maxStamina, currStamina int, pitItems 
 		currstamina: currStamina,
 		PitItems:    pitItems,
 	}
-}
-
-func main() {
-	driver := initDriver("YourName", "Ferrari", 1, 100, 40, []string{"Energy Drink /", "Energy Drink /", "Energy Drink"})
-	displayInfo(&driver)
-}
-
-func displayInfo(d *Driver) {
-	fmt.Printf("Name: %s\nTeam: %s\nLevel: %d\nStamina: %d/%d\nPit Items: %v\n", d.name, d.team, d.level, d.currstamina, d.MaxStamina, d.PitItems)
 }
