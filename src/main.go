@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Driver struct {
@@ -15,6 +16,7 @@ type Driver struct {
 	MaxStamina  int
 	currstamina int
 	PitItems    []string
+	skills      []string
 }
 
 func initDriver(name, team string, level, maxStamina, currStamina int, pitItems []string) Driver {
@@ -25,6 +27,7 @@ func initDriver(name, team string, level, maxStamina, currStamina int, pitItems 
 		MaxStamina:  maxStamina,
 		currstamina: currStamina,
 		PitItems:    pitItems,
+		skills:      []string{"Basic Overtake"},
 	}
 }
 
@@ -64,24 +67,6 @@ func readInput() string {
 func mainMenu(d *Driver) {
 	for {
 		fmt.Println("\nMenu:\n1. Display Driver Info\n2. Access Pit Items\n3. Pit Shop\n4. Quit")
-		fmt.Println(`
-
-                                                         
-                ..:-=========================-.=======-. 
-             -#############################*.*#######:   
-           -#############################*.+#######=     
-         :#######*:......................=#######+.      
-       :*######-:#####################--#######*.        
-     .*######=.*####################=:#######*.          
-   .*######+.*#####*..             :#######*.            
- .+######*.+######:              .*#######:  ::=:        
-     
-===== MENU PRINCIPAL =====
-1. Dislay Driver Info
-2. Access Pit Items
-3. Quit
-==========================
-Votre choix :`)
 		choice := readInput()
 		switch choice {
 		case "1":
@@ -111,6 +96,13 @@ func accessPitItemsMenu(d *Driver) {
 			item := d.PitItems[num-1]
 			if item == "Energy Drink" {
 				useEnergyDrink(d)
+				if item == "Yellow Flag" {
+					useYellowFlag(d)
+				}
+				if item == "Skill Manual: DRS Boost" {
+					learnSkill(d, "Aggressive Pass")
+					removeFromPitItems(d, item)
+				}
 			} else {
 				fmt.Println("Item not usable")
 			}
@@ -118,11 +110,6 @@ func accessPitItemsMenu(d *Driver) {
 			fmt.Println("Invalid Input")
 		}
 	}
-}
-
-func main() {
-	driver := initDriver("YourName", "Ferrari", 1, 100, 40, []string{"Energy Drink", "Energy Drink", "Energy Drink"})
-	mainMenu(&driver)
 }
 
 func addToPitItems(d *Driver, item string) {
@@ -141,7 +128,7 @@ func removeFromPitItems(d *Driver, item string) bool {
 
 func pitShopMenu(d *Driver) {
 	for {
-		fmt.Println("\nPit Shop:\n1. Energy Drink (free)\nback. Return")
+		fmt.Println("\nPit Shop:\n1. Energy Drink (free)\n2. Penalty Card (free)\n3. Skill Manual: DRS Boost (free)\nback. Return")
 		input := readInput()
 		if input == "back" {
 			return
@@ -149,8 +136,50 @@ func pitShopMenu(d *Driver) {
 		if input == "1" {
 			addToPitItems(d, "Energy Drink")
 			fmt.Println("Added Energy Drink")
+		}
+		if input == "2" {
+			addToPitItems(d, "Yellow Flag")
+			fmt.Println("Added Yellow Flag")
+		}
+		if input == "3" {
+			addToPitItems(d, "Skill Manual: DRS Boost")
+			fmt.Println("Added Skill Manual: DRS Boost")
 		} else {
 			fmt.Println("Invalid choice.")
 		}
 	}
+}
+
+func isCrashed(d *Driver) bool {
+	if d.currstamina <= 0 {
+		d.currstamina = d.MaxStamina / 2
+		fmt.Printf("Crashed out! Revived with %d/%d stamina.\n", d.currstamina, d.MaxStamina)
+		return true
+	}
+	return false
+}
+
+func useYellowFlag(d *Driver) {
+	for i := 0; i < 3; i++ {
+		d.currstamina -= 10
+		fmt.Printf("Penalty damage! Stamina: %d/%d\n", d.currstamina, d.MaxStamina)
+		time.Sleep(time.Second)
+	}
+	isCrashed(d)
+}
+
+func learnSkill(d *Driver, skill string) {
+	for _, s := range d.skills {
+		if s == skill {
+			fmt.Println("Skill already learned.")
+			return
+		}
+	}
+	d.skills = append(d.skills, skill)
+	fmt.Printf("Learned %s!\n", skill)
+}
+
+func main() {
+	driver := initDriver("YourName", "Ferrari", 1, 100, 40, []string{"Energy Drink", "Energy Drink", "Energy Drink"})
+	mainMenu(&driver)
 }
