@@ -88,7 +88,7 @@ func readInput() string {
 
 func mainMenu(d *Driver) {
 	for {
-		fmt.Println("\nMenu:\n1. Display Driver Info\n2. Access Pit Items\n3. Pit Shop\n4. Garage Mechanic\n5. Quit")
+		fmt.Println("\nMenu:\n1. Display Driver Info\n2. Access Pit Items\n3. Pit Shop\n4. Garage Mechanic\n5. Training Race\n6. Quit")
 		choice := readInput()
 		switch choice {
 		case "1":
@@ -100,7 +100,9 @@ func mainMenu(d *Driver) {
 		case "4":
 			garageMenu(d)
 		case "5":
-			fmt.Println("Thanks you for playing.")
+			trainingRace(d)
+		case "6":
+			fmt.Println("Thanks for playing.")
 			return
 		default:
 			fmt.Println("Invalid choice.")
@@ -339,20 +341,16 @@ func upgradePitBox(d *Driver) {
 	upgradesUsed++
 	fmt.Printf("Pit box upgraded! New max: %d\n", maxPitItems)
 }
-func main() {
-	driver := driverCreation()
-	mainMenu(&driver)
-}
 
 func driverTurn(d *Driver, r *Rival) bool {
 	for {
-		fmt.Println("\nYour Turn:\n1. Attack\n2. Inventory\n")
+		fmt.Println("\nYour Turn:\n1. Attack\n2. Inventory")
 		choice := readInput()
 		switch choice {
 		case "1":
 			dmg := 5
 			r.CurrStamina -= dmg
-			fmt.Printf("%s uses Basic Overtake on %s for %d damage!\n", d.Name, r.Name, dmg)
+			fmt.Printf("%s uses Basic Overtake on %s for %d damage!\n", d.name, r.Name, dmg)
 			fmt.Printf("%s Stamina: %d/%d\n", r.Name, r.CurrStamina, r.MaxStamina)
 			return true
 		case "2":
@@ -363,11 +361,25 @@ func driverTurn(d *Driver, r *Rival) bool {
 		}
 	}
 }
+func initRookieRival() Rival {
+	return Rival{"Rookie Rival", 40, 40, 5}
+}
+
+func rivalPattern(r *Rival, d *Driver, turn int) {
+	dmg := r.AttackPts
+	if turn%3 == 0 {
+		dmg *= 2
+	}
+	d.currstamina -= dmg
+	fmt.Printf("%s overtakes %s for %d damage!\n", r.Name, d.name, dmg)
+	fmt.Printf("%s Stamina: %d/%d\n", d.name, d.currstamina, d.MaxStamina)
+	isCrashed(d)
+}
 
 func trainingRace(d *Driver) {
 	r := initRookieRival()
 	turn := 1
-	for d.CurrStamina > 0 && r.CurrStamina > 0 {
+	for d.currstamina > 0 && r.CurrStamina > 0 {
 		fmt.Printf("\nTurn %d\n", turn)
 		driverTurn(d, &r)
 		if r.CurrStamina <= 0 {
@@ -375,7 +387,7 @@ func trainingRace(d *Driver) {
 			break
 		}
 		rivalPattern(&r, d, turn)
-		if d.CurrStamina <= 0 {
+		if d.currstamina <= 0 {
 			fmt.Println("You lose!")
 			break
 		}
@@ -383,6 +395,7 @@ func trainingRace(d *Driver) {
 	}
 	fmt.Println("Race over. Back to menu.")
 }
-
-// Update mainMenu add "5. Training Race", "6. Quit", call trainingRace(d)
-
+func main() {
+	driver := driverCreation()
+	mainMenu(&driver)
+}
