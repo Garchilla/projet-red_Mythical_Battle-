@@ -63,7 +63,7 @@ func readInput() string {
 
 func mainMenu(d *Driver) {
 	for {
-		fmt.Println("\nMenu:\n1. Dislay Driver Info\n2. Access Pit Items\n3. Quit")
+		fmt.Println("\nMenu:\n1. Display Driver Info\n2. Access Pit Items\n3. Pit Shop\n4. Quit")
 		choice := readInput()
 		switch choice {
 		case "1":
@@ -71,9 +71,11 @@ func mainMenu(d *Driver) {
 		case "2":
 			accessPitItemsMenu(d)
 		case "3":
+			pitShopMenu(d)
+		case "4":
 			return
 		default:
-			fmt.Println("Invalid Choice")
+			fmt.Println("Invalid choice.")
 		}
 	}
 }
@@ -103,4 +105,34 @@ func accessPitItemsMenu(d *Driver) {
 func main() {
 	driver := initDriver("YourName", "Ferrari", 1, 100, 40, []string{"Energy Drink", "Energy Drink", "Energy Drink"})
 	mainMenu(&driver)
+}
+
+func addToPitItems(d *Driver, item string) {
+	d.PitItems = append(d.PitItems, item)
+}
+
+func removeFromPitItems(d *Driver, item string) bool {
+	for i, it := range d.PitItems {
+		if it == item {
+			d.PitItems = append(d.PitItems[:i], d.PitItems[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
+func pitShopMenu(d *Driver) {
+	for {
+		fmt.Println("\nPit Shop:\n1. Energy Drink (free)\nback. Return")
+		input := readInput()
+		if input == "back" {
+			return
+		}
+		if input == "1" {
+			addToPitItems(d, "Energy Drink")
+			fmt.Println("Added Energy Drink")
+		} else {
+			fmt.Println("Invalid choice.")
+		}
+	}
 }
