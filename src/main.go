@@ -221,3 +221,18 @@ func main() {
 	driver := driverCreation()
 	mainMenu(&driver)
 }
+
+const maxPitItems = 10
+
+func checkInventoryLimit(d *Driver) bool {
+	return len(d.PitItems) < maxPitItems
+}
+
+// Update addToPitItems
+func addToPitItems(d *Driver, item string) {
+	if !checkInventoryLimit(d) {
+		fmt.Println("Pit box full!")
+		return
+	}
+	d.PitItems = append(d.PitItems, item)
+}
