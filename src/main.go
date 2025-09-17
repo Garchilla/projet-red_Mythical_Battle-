@@ -179,11 +179,6 @@ func learnSkill(d *Driver, skill string) {
 	fmt.Printf("Learned %s!\n", skill)
 }
 
-func main() {
-	driver := initDriver("YourName", "Ferrari", 1, 100, 40, []string{"Energy Drink", "Energy Drink", "Energy Drink"})
-	mainMenu(&driver)
-}
-
 func driverCreation() Driver {
 	var name string
 	for {
@@ -222,5 +217,7 @@ func driverCreation() Driver {
 	return initDriver(name, team, 1, maxStamina, currStamina, []string{})
 }
 
-// Update main
-driver := driverCreation()
+func main() {
+	driver := driverCreation()
+	mainMenu(&driver)
+}
