@@ -166,3 +166,37 @@ if input == "2" {
 	addToPitItems(d, "Yellow Flag")
 	fmt.Println("Added Yellow Flag")
 }
+
+// Update Driver struct
+type Driver struct {
+	// ... existing
+	Skills []string
+}
+
+// Update initDriver
+return Driver{ ... , Skills: []string{"Basic Overtake"} }
+
+// New func
+func learnSkill(d *Driver, skill string) {
+	for _, s := range d.Skills {
+		if s == skill {
+			fmt.Println("Skill already learned.")
+			return
+		}
+	}
+	d.Skills = append(d.Skills, skill)
+	fmt.Printf("Learned %s!\n", skill)
+}
+
+// Update accessPitItemsMenu for "Skill Manual: DRS Boost"
+if item == "Skill Manual: DRS Boost" {
+	learnSkill(d, "Aggressive Pass")
+	removeFromPitItems(d, item)
+}
+
+// Update pitShopMenu
+fmt.Println("\nPit Shop:\n1. Energy Drink (free)\n2. Penalty Card (free)\n3. Skill Manual: DRS Boost (free)\nback. Return")
+if input == "3" {
+	addToPitItems(d, "Skill Manual: DRS Boost")
+	fmt.Println("Added Skill Manual: DRS Boost")
+}
