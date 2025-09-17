@@ -200,3 +200,44 @@ if input == "3" {
 	addToPitItems(d, "Skill Manual: DRS Boost")
 	fmt.Println("Added Skill Manual: DRS Boost")
 }
+
+func driverCreation() Driver {
+	var name string
+	for {
+		fmt.Print("Enter driver name (letters only): ")
+		name = readInput()
+		if strings.Trim(name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ") == "" {
+			name = strings.Title(strings.ToLower(name))
+			break
+		}
+		fmt.Println("Invalid name.")
+	}
+
+	var team string
+	var maxStamina int
+	for {
+		fmt.Println("Choose team: 1. Ferrari (100 stamina), 2. Mercedes (80 stamina), 3. Red Bull (120 stamina)")
+		choice := readInput()
+		switch choice {
+		case "1":
+			team = "Ferrari"
+			maxStamina = 100
+		case "2":
+			team = "Mercedes"
+			maxStamina = 80
+		case "3":
+			team = "Red Bull"
+			maxStamina = 120
+		default:
+			fmt.Println("Invalid choice.")
+			continue
+		}
+		break
+	}
+
+	currStamina := maxStamina / 2
+	return initDriver(name, team, 1, maxStamina, currStamina, []string{})
+}
+
+// Update main
+driver := driverCreation()
