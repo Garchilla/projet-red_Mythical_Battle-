@@ -234,6 +234,44 @@ func checkInventoryLimit(d *Driver) bool {
 	return len(d.PitItems) < maxPitItems
 }
 
+func garageMenu(d *Driver) {
+	for {
+		fmt.Println("\nGarage:\n1. Racing Helmet\n2. Racing Suit\n3. Racing Boots\nback. Return")
+		input := readInput()
+		if input == "back" {
+			return
+		}
+		if d.SponsorCredits < 5 {
+			fmt.Println("Not enough credits.")
+			continue
+		}
+		var crafted bool
+		var item string
+		switch input {
+		case "1":
+			if removeFromPitItems(d, "Aero Foil") && removeFromPitItems(d, "Rubber") {
+				crafted = true
+				item = "Racing Helmet"
+			}
+		case "2":
+			cf1 := removeFromPitItems(d, "Carbon")
+			cf2 := removeFromPitItems(d, "Carbon")
+			ta := removeFromPitItems(d, "Titanium")
+			if cf1 && cf2 && ta {
+				crafted = true
+				item = "Racing Suit"
+			}
+		case "3":
+			if removeFromPitItems(d, "Carbon") && removeFromPitItems(d, "Rubber") {
+				crafted = true
+				item = "Racing Boots"
+			}
+		default:
+			fmt.Println("Invalid choice.")
+			continue
+		}
+	}
+}
 func main() {
 	driver := driverCreation()
 	mainMenu(&driver)
