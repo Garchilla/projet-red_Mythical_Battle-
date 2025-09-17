@@ -343,3 +343,23 @@ func main() {
 	driver := driverCreation()
 	mainMenu(&driver)
 }
+
+func driverTurn(d *Driver, r *Rival) bool {
+	for {
+		fmt.Println("\nYour Turn:\n1. Attack\n2. Inventory\n")
+		choice := readInput()
+		switch choice {
+		case "1":
+			dmg := 5
+			r.CurrStamina -= dmg
+			fmt.Printf("%s uses Basic Overtake on %s for %d damage!\n", d.Name, r.Name, dmg)
+			fmt.Printf("%s Stamina: %d/%d\n", r.Name, r.CurrStamina, r.MaxStamina)
+			return true
+		case "2":
+			accessPitItemsMenu(d)
+			return true
+		default:
+			fmt.Println("Invalid choice.")
+		}
+	}
+}
