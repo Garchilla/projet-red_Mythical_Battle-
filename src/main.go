@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+var crafted bool
+var item string
+var scanner = bufio.NewScanner(os.Stdin)
+
 type Driver struct {
 	name           string
 	team           string
@@ -58,8 +62,6 @@ func useEnergyDrink(d *Driver) {
 	}
 	fmt.Println("No Energy Drink Available")
 }
-
-var scanner = bufio.NewScanner(os.Stdin)
 
 func readInput() string {
 	scanner.Scan()
@@ -248,8 +250,7 @@ func garageMenu(d *Driver) {
 			fmt.Println("Not enough credits.")
 			continue
 		}
-		var crafted bool
-		var item string
+
 		switch input {
 		case "1":
 			if removeFromPitItems(d, "Aero Foil") && removeFromPitItems(d, "Rubber") {
