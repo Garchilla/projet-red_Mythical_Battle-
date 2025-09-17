@@ -82,7 +82,7 @@ func mainMenu(d *Driver) {
 		case "4":
 			garageMenu(d)
 		case "5":
-			fmt.Println("thank you for playing.")
+			fmt.Println("Thanks you for playing.")
 			return
 		default:
 			fmt.Println("Invalid choice.")
