@@ -10,26 +10,26 @@ import (
 )
 
 type Driver struct {
-	name            string
-	team            string
-	level           int
-	MaxStamina      int
-	currstamina     int
-	PitItems        []string
-	skills          []string
-	SponsorsCredits int
+	name           string
+	team           string
+	level          int
+	MaxStamina     int
+	currstamina    int
+	PitItems       []string
+	skills         []string
+	SponsorCredits int
 }
 
 func initDriver(name, team string, level, maxStamina, currStamina int, pitItems []string, credits int) Driver {
 	return Driver{
-		name:            name,
-		team:            team,
-		level:           level,
-		MaxStamina:      maxStamina,
-		currstamina:     currStamina,
-		PitItems:        pitItems,
-		skills:          []string{"Basic Overtake"},
-		SponsorsCredits: credits,
+		name:           name,
+		team:           team,
+		level:          level,
+		MaxStamina:     maxStamina,
+		currstamina:    currStamina,
+		PitItems:       pitItems,
+		skills:         []string{"Basic Overtake"},
+		SponsorCredits: credits,
 	}
 }
 
@@ -134,14 +134,19 @@ func removeFromPitItems(d *Driver, item string) bool {
 
 func pitShopMenu(d *Driver) {
 	for {
-		fmt.Println("\nPit Shop:\n1. Energy Drink (free)\n2. Penalty Card (free)\n3. Skill Manual: DRS Boost (free)\nback. Return")
+		fmt.Println("\nPit Shop:\n1. Energy Drink (3 credits)\n2. Penalty Card (6 credits)\n3. Skill Manual: DRS Boost (25 credits)\n4. Carbon Fiber (4 credits)\n5. Titanium Alloy (7 credits)\n6. Rubber Compound (3 credits)\n7. Aero Foil (1 credit)\nback. Return")
 		input := readInput()
 		if input == "back" {
 			return
 		}
 		if input == "1" {
-			addToPitItems(d, "Energy Drink")
-			fmt.Println("Added Energy Drink")
+			if d.SponsorCredits >= 3 {
+				d.SponsorCredits -= 3
+				addToPitItems(d, "Energy Drink")
+				fmt.Println("Bought Energy Drink")
+			} else {
+				fmt.Println("Not enough credits.")
+			}
 		}
 		if input == "2" {
 			addToPitItems(d, "Yellow Flag")
