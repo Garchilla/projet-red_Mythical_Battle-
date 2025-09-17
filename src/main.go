@@ -34,6 +34,13 @@ type Gear struct {
 	Boots  string
 }
 
+type Rival struct {
+	Name        string
+	MaxStamina  int
+	CurrStamina int
+	AttackPts   int
+}
+
 func initDriver(name, team string, level, maxStamina, currStamina int, pitItems []string, credits int) Driver {
 	return Driver{
 		name:           name,
