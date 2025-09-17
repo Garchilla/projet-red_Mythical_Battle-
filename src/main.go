@@ -136,3 +136,33 @@ func pitShopMenu(d *Driver) {
 		}
 	}
 }
+
+func isCrashed(d *Driver) bool {
+	if d.CurrStamina <= 0 {
+		d.CurrStamina = d.MaxStamina / 2
+		fmt.Printf("Crashed out! Revived with %d/%d stamina.\n", d.CurrStamina, d.MaxStamina)
+		return true
+	}
+	return false
+}
+
+func useYellowFlag(d *Driver) {
+	for i := 0; i < 3; i++ {
+		d.CurrStamina -= 10
+		fmt.Printf("Penalty damage! Stamina: %d/%d\n", d.CurrStamina, d.MaxStamina)
+		time.Sleep(time.Second)
+	}
+	isCrashed(d)
+}
+
+// Update accessPitItemsMenu to handle "Yellow Flag"
+if item == "Yellow Flag" {
+	useYellowFlag(d)
+}
+
+// Update pitShopMenu
+fmt.Println("\nPit Shop:\n1. Energy Drink (free)\n2. Yellow Flag (free)\nback. Return")
+if input == "2" {
+	addToPitItems(d, "Yellow Flag")
+	fmt.Println("Added Yellow Flag")
+}
