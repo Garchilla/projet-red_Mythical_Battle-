@@ -68,7 +68,7 @@ func readInput() string {
 
 func mainMenu(d *Driver) {
 	for {
-		fmt.Println("\nMenu:\n1. Display Driver Info\n2. Access Pit Items\n3. Pit Shop\n4. Quit")
+		fmt.Println("\nMenu:\n1. Display Driver Info\n2. Access Pit Items\n3. Pit Shop\n4. Garage Mechanic\n5. Quit")
 		choice := readInput()
 		switch choice {
 		case "1":
@@ -78,6 +78,9 @@ func mainMenu(d *Driver) {
 		case "3":
 			pitShopMenu(d)
 		case "4":
+			garageMenu(d)
+		case "5":
+			fmt.Println("thank you for playing.")
 			return
 		default:
 			fmt.Println("Invalid choice.")
