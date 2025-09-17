@@ -12,6 +12,10 @@ import (
 var crafted bool
 var item string
 var scanner = bufio.NewScanner(os.Stdin)
+var maxPitItems = 10
+var upgradesUsed = 0
+
+const maxUpgrades = 3
 
 type Driver struct {
 	name           string
@@ -170,6 +174,9 @@ func pitShopMenu(d *Driver) {
 		if input == "3" {
 			addToPitItems(d, "Skill Manual: DRS Boost")
 			fmt.Println("Added Skill Manual: DRS Boost")
+		}
+		if input == "4" {
+			upgradePitBox(d)
 		} else {
 			fmt.Println("Invalid choice.")
 		}
@@ -243,8 +250,6 @@ func driverCreation() Driver {
 	return initDriver(name, team, 1, maxStamina, currStamina, []string{}, 100)
 }
 
-const maxPitItems = 10
-
 func checkInventoryLimit(d *Driver) bool {
 	return len(d.PitItems) < maxPitItems
 }
@@ -312,6 +317,20 @@ func equipGear(d *Driver, item string) {
 	}
 	removeFromPitItems(d, item)
 	fmt.Printf("Equipped %s. Max Stamina now %d\n", item, d.MaxStamina)
+}
+func upgradePitBox(d *Driver) {
+	if upgradesUsed >= maxUpgrades {
+		fmt.Println("Max upgrades reached.")
+		return
+	}
+	if d.SponsorCredits < 30 {
+		fmt.Println("Not enough credits.")
+		return
+	}
+	d.SponsorCredits -= 30
+	maxPitItems += 10
+	upgradesUsed++
+	fmt.Printf("Pit box upgraded! New max: %d\n", maxPitItems)
 }
 func main() {
 	driver := driverCreation()
