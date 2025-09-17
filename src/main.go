@@ -22,6 +22,12 @@ type Driver struct {
 	PitItems       []string
 	skills         []string
 	SponsorCredits int
+	Gear           Gear
+}
+type Gear struct {
+	Helmet string
+	Suit   string
+	Boots  string
 }
 
 func initDriver(name, team string, level, maxStamina, currStamina int, pitItems []string, credits int) Driver {
@@ -34,6 +40,7 @@ func initDriver(name, team string, level, maxStamina, currStamina int, pitItems 
 		PitItems:       pitItems,
 		skills:         []string{"Basic Overtake"},
 		SponsorCredits: credits,
+		Gear:           Gear{},
 	}
 }
 
