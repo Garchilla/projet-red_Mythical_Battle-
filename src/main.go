@@ -63,7 +63,24 @@ func readInput() string {
 
 func mainMenu(d *Driver) {
 	for {
-		fmt.Println("\nMenu:\n1. Dislay Driver Info\n2. Access Pit Items\n3. Quit")
+		fmt.Println(`
+
+                                                         
+                ..:-=========================-.=======-. 
+             -#############################*.*#######:   
+           -#############################*.+#######=     
+         :#######*:......................=#######+.      
+       :*######-:#####################--#######*.        
+     .*######=.*####################=:#######*.          
+   .*######+.*#####*..             :#######*.            
+ .+######*.+######:              .*#######:  ::=:        
+     
+===== MENU PRINCIPAL =====
+1. Dislay Driver Info
+2. Access Pit Items
+3. Quit
+==========================
+Votre choix :`)
 		choice := readInput()
 		switch choice {
 		case "1":
