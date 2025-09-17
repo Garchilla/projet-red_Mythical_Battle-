@@ -108,15 +108,18 @@ func accessPitItemsMenu(d *Driver) {
 		num, err := strconv.Atoi(input)
 		if err == nil && num > 0 && num <= len(d.PitItems) {
 			item := d.PitItems[num-1]
+			if strings.HasPrefix(item, "Racing") {
+				equipGear(d, item)
+			}
 			if item == "Energy Drink" {
 				useEnergyDrink(d)
-				if item == "Yellow Flag" {
-					useYellowFlag(d)
-				}
-				if item == "Skill Manual: DRS Boost" {
-					learnSkill(d, "Aggressive Pass")
-					removeFromPitItems(d, item)
-				}
+			}
+			if item == "Yellow Flag" {
+				useYellowFlag(d)
+			}
+			if item == "Skill Manual: DRS Boost" {
+				learnSkill(d, "Aggressive Pass")
+				removeFromPitItems(d, item)
 			} else {
 				fmt.Println("Item not usable")
 			}
@@ -282,6 +285,33 @@ func garageMenu(d *Driver) {
 			continue
 		}
 	}
+}
+func equipGear(d *Driver, item string) {
+	switch item {
+	case "Racing Helmet":
+		if d.Gear.Helmet != "" {
+			addToPitItems(d, d.Gear.Helmet)
+		}
+		d.Gear.Helmet = item
+		d.MaxStamina += 10
+	case "Racing Suit":
+		if d.Gear.Suit != "" {
+			addToPitItems(d, d.Gear.Suit)
+		}
+		d.Gear.Suit = item
+		d.MaxStamina += 25
+	case "Racing Boots":
+		if d.Gear.Boots != "" {
+			addToPitItems(d, d.Gear.Boots)
+		}
+		d.Gear.Boots = item
+		d.MaxStamina += 15
+	}
+	if d.currstamina > d.MaxStamina {
+		d.currstamina = d.MaxStamina
+	}
+	removeFromPitItems(d, item)
+	fmt.Printf("Equipped %s. Max Stamina now %d\n", item, d.MaxStamina)
 }
 func main() {
 	driver := driverCreation()
