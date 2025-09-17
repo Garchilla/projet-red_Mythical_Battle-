@@ -363,3 +363,26 @@ func driverTurn(d *Driver, r *Rival) bool {
 		}
 	}
 }
+
+func trainingRace(d *Driver) {
+	r := initRookieRival()
+	turn := 1
+	for d.CurrStamina > 0 && r.CurrStamina > 0 {
+		fmt.Printf("\nTurn %d\n", turn)
+		driverTurn(d, &r)
+		if r.CurrStamina <= 0 {
+			fmt.Println("You win!")
+			break
+		}
+		rivalPattern(&r, d, turn)
+		if d.CurrStamina <= 0 {
+			fmt.Println("You lose!")
+			break
+		}
+		turn++
+	}
+	fmt.Println("Race over. Back to menu.")
+}
+
+// Update mainMenu add "5. Training Race", "6. Quit", call trainingRace(d)
+
