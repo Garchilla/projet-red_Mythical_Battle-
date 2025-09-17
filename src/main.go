@@ -10,24 +10,26 @@ import (
 )
 
 type Driver struct {
-	name        string
-	team        string
-	level       int
-	MaxStamina  int
-	currstamina int
-	PitItems    []string
-	skills      []string
+	name            string
+	team            string
+	level           int
+	MaxStamina      int
+	currstamina     int
+	PitItems        []string
+	skills          []string
+	SponsorsCredits int
 }
 
-func initDriver(name, team string, level, maxStamina, currStamina int, pitItems []string) Driver {
+func initDriver(name, team string, level, maxStamina, currStamina int, pitItems []string, credits int) Driver {
 	return Driver{
-		name:        name,
-		team:        team,
-		level:       level,
-		MaxStamina:  maxStamina,
-		currstamina: currStamina,
-		PitItems:    pitItems,
-		skills:      []string{"Basic Overtake"},
+		name:            name,
+		team:            team,
+		level:           level,
+		MaxStamina:      maxStamina,
+		currstamina:     currStamina,
+		PitItems:        pitItems,
+		skills:          []string{"Basic Overtake"},
+		SponsorsCredits: credits,
 	}
 }
 
@@ -189,7 +191,7 @@ func driverCreation() Driver {
 		fmt.Print("Enter driver name (letters only): ")
 		name = readInput()
 		if strings.Trim(name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ") == "" {
-			name = strings.Title(strings.ToLower(name))
+			name = (strings.ToLower(name))
 			break
 		}
 		fmt.Println("Invalid name.")
@@ -218,7 +220,7 @@ func driverCreation() Driver {
 	}
 
 	currStamina := maxStamina / 2
-	return initDriver(name, team, 1, maxStamina, currStamina, []string{})
+	return initDriver(name, team, 1, maxStamina, currStamina, []string{}, 100)
 }
 
 const maxPitItems = 10
