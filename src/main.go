@@ -376,7 +376,7 @@ func checkInventoryLimit(d *Driver) bool {
 
 func garageMenu(d *Driver) {
 	for {
-		fmt.Println("\nGarage:\n1. Casque de course (Aerodynamique + Rubber)\n2. Combinaison de course (2 Carbone + Titane)\n3. Bottes de course(Carbone + caoutchouc)\nback. Return")
+		fmt.Println("\nGarage:\n1. Casque de course (Aerodynamique + Rubber)\n2. Combinaison de course (2 Carbone + Titane)\n3. Bottes de course(Carbone + Caoutchouc)\nback. Return")
 		input := readInput()
 		if input == "back" {
 			return
