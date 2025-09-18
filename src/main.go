@@ -57,7 +57,7 @@ func initDriver(name, team string, level, maxStamina, currStamina, initiative, m
 		MaxStamina:     maxStamina,
 		CurrStamina:    currStamina,
 		PitItems:       pitItems,
-		Skills:         []string{"Basic Overtake"},
+		Skills:         []string{"Dépassement"},
 		SponsorCredits: credits,
 		Gear:           Gear{},
 		Initiative:     initiative,
@@ -69,12 +69,12 @@ func initDriver(name, team string, level, maxStamina, currStamina, initiative, m
 }
 
 func displayInfo(d *Driver) {
-	fmt.Printf("Name: %s\nTeam: %s\nLevel: %d\nStamina: %d/%d\nFocus: %d/%d\nCredits: %d\nInitiative: %d\nExp: %d/%d\nPit Items: %v\nSkills: %v\nGear: Helmet=%s, Suit=%s, Boots=%s\n",
-		d.Name, d.Team, d.Level, d.CurrStamina, d.MaxStamina, d.Focus, d.MaxFocus, d.SponsorCredits, d.Initiative, d.CurrExp, d.MaxExp, d.PitItems, d.Skills, d.Gear.Helmet, d.Gear.Suit, d.Gear.Boots) // Fixed Gear order
+	fmt.Printf("Pilote: %s\nEcurie: %s\nNiveau: %d\nStamina: %d/%d\nFocus: %d/%d\nCredits: %d\nInitiative: %d\nExp: %d/%d\nInventaire: %v\nSkills: %v\nItems: Casque=%s, Combinaison=%s, Bottes=%s\n",
+		d.Name, d.Team, d.Level, d.CurrStamina, d.MaxStamina, d.Focus, d.MaxFocus, d.SponsorCredits, d.Initiative, d.CurrExp, d.MaxExp, d.PitItems, d.Skills, d.Gear.Helmet, d.Gear.Suit, d.Gear.Boots)
 }
 
 func accessPitItems(d *Driver) {
-	fmt.Println("Pit Items: ")
+	fmt.Println("Inventaire: ")
 	for i, item := range d.PitItems {
 		fmt.Printf("%d. %s\n", i+1, item)
 	}
@@ -82,17 +82,17 @@ func accessPitItems(d *Driver) {
 
 func useEnergyDrink(d *Driver) {
 	for i, item := range d.PitItems {
-		if item == "Energy Drink" {
+		if item == "Red Bull (Gives you wings)" {
 			d.PitItems = append(d.PitItems[:i], d.PitItems[i+1:]...)
 			d.CurrStamina += 50
 			if d.CurrStamina > d.MaxStamina {
 				d.CurrStamina = d.MaxStamina
 			}
-			fmt.Printf("Used Energy Drink. Stamina: %d/%d\n", d.CurrStamina, d.MaxStamina)
+			fmt.Printf("Red Bull utilisé. Stamina: %d/%d\n", d.CurrStamina, d.MaxStamina)
 			return
 		}
 	}
-	fmt.Println("No Energy Drink Available")
+	fmt.Println("Pas de Red Bull disponible :(")
 }
 
 func readInput() string {
@@ -102,7 +102,7 @@ func readInput() string {
 
 func mainMenu(d *Driver) {
 	for {
-		fmt.Println("\nMenu:\n1. Display Driver Info\n2. Access Pit Items\n3. Pit Shop\n4. Garage Mechanic\n5. Training Race\n6. Quit")
+		fmt.Println("\n===========MAIN MENU============\n1. Info sur le pilote \n2. Accéder à l'inventaire\n3. Pit Stop\n4. Garage Mécanique\n5. Lancer le Grand Prix\n6. Qui sont les artistes cachés?\n7. Quitter\n=================================")
 		choice := readInput()
 		switch choice {
 		case "1":
@@ -116,10 +116,12 @@ func mainMenu(d *Driver) {
 		case "5":
 			trainingRace(d)
 		case "6":
-			fmt.Println("Thanks for playing.")
+			fmt.Println("Les artistes cachés sont ABBA et Steven Spielberg")
+		case "7":
+			fmt.Println("Merci d'avoir joué(e)!")
 			return
 		default:
-			fmt.Println("Invalid choice.")
+			fmt.Println("Choix invalide.")
 		}
 	}
 }
@@ -127,7 +129,7 @@ func mainMenu(d *Driver) {
 func accessPitItemsMenu(d *Driver) {
 	for {
 		accessPitItems(d)
-		fmt.Println("Select an item number to use or type 'back' to return:")
+		fmt.Println("Choisissez un objet à utiliser ou écrivez 'back' pour revenir en arrière:")
 		input := readInput()
 		if input == "back" {
 			return
@@ -138,27 +140,27 @@ func accessPitItemsMenu(d *Driver) {
 			if strings.HasPrefix(item, "Racing") {
 				equipGear(d, item)
 			}
-			if item == "Energy Drink" {
+			if item == "Red Bull (Gives you wings)" {
 				useEnergyDrink(d)
 			}
-			if item == "Yellow Flag" {
+			if item == "Drapeau Jaune" {
 				useYellowFlag(d)
 			}
-			if item == "Skill Manual: DRS Boost" {
-				learnSkill(d, "Aggressive Pass")
+			if item == "Skill Manuel: DRS Boost" {
+				learnSkill(d, "Dépassement aggressif")
 				removeFromPitItems(d, item)
 			} else {
-				fmt.Println("Item not usable")
+				fmt.Println("Item n'est pas utilisable ici.")
 			}
 		} else {
-			fmt.Println("Invalid Input")
+			fmt.Println("Invalide Input")
 		}
 	}
 }
 
 func addToPitItems(d *Driver, item string) {
 	if !checkInventoryLimit(d) {
-		fmt.Println("Pit box full!")
+		fmt.Println("Inventaire full!")
 		return
 	}
 	d.PitItems = append(d.PitItems, item)
@@ -176,7 +178,7 @@ func removeFromPitItems(d *Driver, item string) bool {
 
 func pitShopMenu(d *Driver) {
 	for {
-		fmt.Println("\nPit Shop:\n1. Energy Drink (3 credits)\n2. Yellow Flag (6 credits)\n3. Skill Manual: DRS Boost (25 credits)\n4. Carbon Fiber (4 credits)\n5. Titanium Alloy (7 credits)\n6. Rubber Compound (3 credits)\n7. Aero Foil (1 credit)\n8. Pit Box Upgrade (30 credits)\nback. Return")
+		fmt.Println("\n=====INVENTAIRE=====\n1. Red Bull (Gives You Wings) (3 credits)\n2. Drapeau jaune (6 credits)\n3. Skill Manuel: DRS Boost (25 credits)\n4. Carbone (4 credits)\n5. Titane (7 credits)\n6. Caoutchouc (3 credits)\n7. Aerodynamique (1 credit)\n8. Upgrade inventaire (30 credits)\nback. Return")
 		input := readInput()
 		if input == "back" {
 			return
@@ -186,38 +188,38 @@ func pitShopMenu(d *Driver) {
 		switch input {
 		case "1":
 			cost = 3
-			item = "Energy Drink"
+			item = "Red Bull"
 		case "2":
 			cost = 6
-			item = "Yellow Flag"
+			item = "Drapeau Jaune"
 		case "3":
 			cost = 25
-			item = "Skill Manual: DRS Boost"
+			item = "Skill Manuel: DRS Boost"
 		case "4":
 			cost = 4
-			item = "Carbon Fiber"
+			item = "Carbone"
 		case "5":
 			cost = 7
-			item = "Titanium Alloy"
+			item = "Titane"
 		case "6":
 			cost = 3
-			item = "Rubber Compound"
+			item = "Caoutchouc"
 		case "7":
 			cost = 1
-			item = "Aero Foil"
+			item = "Aerodynamique"
 		case "8":
 			upgradePitBox(d)
 			continue
 		default:
-			fmt.Println("Invalid choice.")
+			fmt.Println("Choix invalide")
 			continue
 		}
 		if d.SponsorCredits >= cost {
 			d.SponsorCredits -= cost
 			addToPitItems(d, item)
-			fmt.Printf("Bought %s\n", item)
+			fmt.Printf("Acheter %s\n", item)
 		} else {
-			fmt.Println("Not enough credits.")
+			fmt.Println("Pas assez de crédits")
 		}
 	}
 }
@@ -225,7 +227,7 @@ func pitShopMenu(d *Driver) {
 func isCrashed(d *Driver) bool {
 	if d.CurrStamina <= 0 {
 		d.CurrStamina = d.MaxStamina / 2
-		fmt.Printf("Crashed out! Revived with %d/%d stamina.\n", d.CurrStamina, d.MaxStamina)
+		fmt.Printf("ACCIDENT!!! Rescussiter avec: %d/%d stamina.\n", d.CurrStamina, d.MaxStamina)
 		return true
 	}
 	return false
@@ -234,7 +236,7 @@ func isCrashed(d *Driver) bool {
 func useYellowFlag(d *Driver) {
 	for i := 0; i < 3; i++ {
 		d.CurrStamina -= 10
-		fmt.Printf("Penalty damage! Stamina: %d/%d\n", d.CurrStamina, d.MaxStamina)
+		fmt.Printf("Penalty! Stamina: %d/%d\n", d.CurrStamina, d.MaxStamina)
 		time.Sleep(time.Second)
 	}
 	isCrashed(d)
@@ -243,30 +245,30 @@ func useYellowFlag(d *Driver) {
 func learnSkill(d *Driver, skill string) {
 	for _, s := range d.Skills {
 		if s == skill {
-			fmt.Println("Skill already learned.")
+			fmt.Println("Skill deja connu.")
 			return
 		}
 	}
 	d.Skills = append(d.Skills, skill)
-	fmt.Printf("Learned %s!\n", skill)
+	fmt.Printf("Appris %s!\n", skill)
 }
 
 func driverCreation() Driver {
 	var name string
 	for {
-		fmt.Print("Enter driver name (letters only): ")
+		fmt.Print("Entrez le nom de votre pilote (lettres seulement): ")
 		name = readInput()
 		if strings.Trim(name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ") == "" {
 			name = (strings.ToLower(name))
 			break
 		}
-		fmt.Println("Invalid name.")
+		fmt.Println("Prénom invalide.")
 	}
 
 	var team string
 	var maxStamina, initiative int
 	for {
-		fmt.Println("Choose team: 1. Ferrari (100 stamina, 10 initiative), 2. Mercedes (80 stamina, 12 initiative), 3. Red Bull (120 stamina, 8 initiative)")
+		fmt.Println("Choisissez l'écurie: 1. Ferrari (100 stamina, 10 initiative), 2. Alpine (80 stamina, 12 initiative), 3. Mclaren (120 stamina, 8 initiative)")
 		choice := readInput()
 		switch choice {
 		case "1":
@@ -274,15 +276,15 @@ func driverCreation() Driver {
 			maxStamina = 100
 			initiative = 10
 		case "2":
-			team = "Mercedes"
+			team = "Alpine"
 			maxStamina = 80
 			initiative = 12
 		case "3":
-			team = "Red Bull"
+			team = "Mclaren"
 			maxStamina = 120
 			initiative = 8
 		default:
-			fmt.Println("Invalid choice.")
+			fmt.Println("Choix invalide.")
 			continue
 		}
 		break
@@ -298,64 +300,64 @@ func checkInventoryLimit(d *Driver) bool {
 
 func garageMenu(d *Driver) {
 	for {
-		fmt.Println("\nGarage:\n1. Racing Helmet (Aero Foil + Rubber Compound)\n2. Racing Suit (2 Carbon Fiber + Titanium Alloy)\n3. Racing Boots (Carbon Fiber + Rubber Compound)\nback. Return")
+		fmt.Println("\nGarage:\n1. Casque de course (Aerodynamique + Rubber)\n2. Combinaison de course (2 Carbone + Titane)\n3. Bottes de course(Carbone + caoutchouc)\nback. Return")
 		input := readInput()
 		if input == "back" {
 			return
 		}
 		if d.SponsorCredits < 5 {
-			fmt.Println("Not enough credits.")
+			fmt.Println("Pas assez de crédits.")
 			continue
 		}
 		switch input {
 		case "1":
-			if removeFromPitItems(d, "Aero Foil") && removeFromPitItems(d, "Rubber Compound") {
+			if removeFromPitItems(d, "Aerodynamique") && removeFromPitItems(d, "Caoutchouc") {
 				crafted = true
-				item = "Racing Helmet"
+				item = "Casque de course"
 			}
 		case "2":
-			cf1 := removeFromPitItems(d, "Carbon Fiber")
-			cf2 := removeFromPitItems(d, "Carbon Fiber")
-			ta := removeFromPitItems(d, "Titanium Alloy")
+			cf1 := removeFromPitItems(d, "Carbone")
+			cf2 := removeFromPitItems(d, "Carbone")
+			ta := removeFromPitItems(d, "Titane")
 			if cf1 && cf2 && ta {
 				crafted = true
-				item = "Racing Suit"
+				item = "Combinaison de course"
 			}
 		case "3":
-			if removeFromPitItems(d, "Carbon Fiber") && removeFromPitItems(d, "Rubber Compound") {
+			if removeFromPitItems(d, "Carbone") && removeFromPitItems(d, "Caoutchouc") {
 				crafted = true
-				item = "Racing Boots"
+				item = "Bottes de course"
 			}
 		default:
-			fmt.Println("Invalid choice.")
+			fmt.Println("Choix invalide.")
 			continue
 		}
 		if crafted {
 			d.SponsorCredits -= 5
 			addToPitItems(d, item)
-			fmt.Printf("Crafted %s\n", item)
+			fmt.Printf("Création de %s\n", item)
 			crafted = false
 		} else {
-			fmt.Println("Missing materials.")
+			fmt.Println("Manque de matériaux.")
 		}
 	}
 }
 
 func equipGear(d *Driver, item string) {
 	switch item {
-	case "Racing Helmet":
+	case "Casque de course":
 		if d.Gear.Helmet != "" {
 			addToPitItems(d, d.Gear.Helmet)
 		}
 		d.Gear.Helmet = item
 		d.MaxStamina += 10
-	case "Racing Suit":
+	case "Combinaison de course":
 		if d.Gear.Suit != "" {
 			addToPitItems(d, d.Gear.Suit)
 		}
 		d.Gear.Suit = item
 		d.MaxStamina += 25
-	case "Racing Boots":
+	case "Bottes de course":
 		if d.Gear.Boots != "" {
 			addToPitItems(d, d.Gear.Boots)
 		}
@@ -366,22 +368,22 @@ func equipGear(d *Driver, item string) {
 		d.CurrStamina = d.MaxStamina
 	}
 	removeFromPitItems(d, item)
-	fmt.Printf("Equipped %s. Max Stamina now %d\n", item, d.MaxStamina)
+	fmt.Printf("Equiper %s. Max Stamina est maintenant %d\n", item, d.MaxStamina)
 }
 
 func upgradePitBox(d *Driver) {
 	if upgradesUsed >= maxUpgrades {
-		fmt.Println("Max upgrades reached.")
+		fmt.Println("Max upgrades atteint.")
 		return
 	}
 	if d.SponsorCredits < 30 {
-		fmt.Println("Not enough credits.")
+		fmt.Println("Pas assez de crédits.")
 		return
 	}
 	d.SponsorCredits -= 30
 	maxPitItems += 10
 	upgradesUsed++
-	fmt.Printf("Pit box upgraded! New max: %d\n", maxPitItems)
+	fmt.Printf("Inventaire Upgraded! Nouveau max: %d\n", maxPitItems)
 }
 
 func gainExp(d *Driver, exp int) {
@@ -392,13 +394,13 @@ func gainExp(d *Driver, exp int) {
 		d.MaxExp += 10
 		d.MaxStamina += 5
 		d.CurrStamina = d.MaxStamina
-		fmt.Printf("Level up to %d! Max Stamina +5\n", d.Level)
+		fmt.Printf("Level up à  %d! Stamina Max +5\n", d.Level)
 	}
 }
 
 func driverTurn(d *Driver, r *Rival, weather int) bool {
 	for {
-		fmt.Println("\nYour Turn:\n1. Attack\n2. Inventory")
+		fmt.Println("\nTon Tour:\n1. Attack\n2. Inventaire")
 		choice := readInput()
 		switch choice {
 		case "1":
@@ -407,14 +409,14 @@ func driverTurn(d *Driver, r *Rival, weather int) bool {
 				dmg = int(float64(dmg) * 0.8)
 			}
 			r.CurrStamina -= dmg
-			fmt.Printf("%s uses Basic Overtake on %s for %d damage!\n", d.Name, r.Name, dmg)
+			fmt.Printf("%s utilise dépassement %s pour %d dégats!\n", d.Name, r.Name, dmg)
 			fmt.Printf("%s Stamina: %d/%d\n", r.Name, r.CurrStamina, r.MaxStamina)
 			return true
 		case "2":
 			accessPitItemsMenu(d)
 			return true
 		default:
-			fmt.Println("Invalid choice.")
+			fmt.Println("Choix invalide")
 		}
 	}
 }
@@ -432,7 +434,7 @@ func rivalPattern(r *Rival, d *Driver, turn int, weather int) {
 		dmg = int(float64(dmg) * 0.8)
 	}
 	d.CurrStamina -= dmg
-	fmt.Printf("%s overtakes %s for %d damage!\n", r.Name, d.Name, dmg)
+	fmt.Printf("%s accélére %s pour %d dégats!\n", r.Name, d.Name, dmg)
 	fmt.Printf("%s Stamina: %d/%d\n", d.Name, d.CurrStamina, d.MaxStamina)
 	isCrashed(d)
 }
@@ -442,44 +444,44 @@ func trainingRace(d *Driver) {
 	rand.Seed(time.Now().UnixNano())
 	weather := rand.Intn(2)
 	if weather == 1 {
-		fmt.Println("Rainy conditions!")
+		fmt.Println("La pluit est arrivée!")
 	}
 	turn := 1
 	playerFirst := d.Initiative >= r.Initiative
 	for d.CurrStamina > 0 && r.CurrStamina > 0 {
-		fmt.Printf("\nTurn %d\n", turn)
+		fmt.Printf("\nTour %d\n", turn)
 		if playerFirst {
 			if !driverTurn(d, &r, weather) {
 				continue
 			}
 			if r.CurrStamina <= 0 {
-				fmt.Println("You win!")
+				fmt.Println("VICTOIRE!")
 				gainExp(d, 20)
 				break
 			}
 			rivalPattern(&r, d, turn, weather)
 			if d.CurrStamina <= 0 {
-				fmt.Println("You lose!")
+				fmt.Println("YOU DIED")
 				break
 			}
 		} else {
 			rivalPattern(&r, d, turn, weather)
 			if d.CurrStamina <= 0 {
-				fmt.Println("You lose!")
+				fmt.Println("YOU DIED!")
 				break
 			}
 			if !driverTurn(d, &r, weather) {
 				continue
 			}
 			if r.CurrStamina <= 0 {
-				fmt.Println("You win!")
+				fmt.Println("VICTOIRE!")
 				gainExp(d, 20)
 				break
 			}
 		}
 		turn++
 	}
-	fmt.Println("Race over. Back to menu.")
+	fmt.Println("Fin du Grand Prix. Retour au menu principal.")
 }
 
 func main() {
