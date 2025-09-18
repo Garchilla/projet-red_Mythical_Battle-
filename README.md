@@ -16,4 +16,4 @@ La deuxième et la mode "Grand Prix", où le joueur doit gagner contre 10 advers
 
 
 
-Un skill "one shot" a était ajouter pour pouvoir tester ce mode de jeux et pour facilement réussir (mais elle n'est pas senser etre utiliser si le joueur joue comme prévu)
+Un skill "one shot" a était ajouter pour pouvoir tester ce mode de jeux et pour facilement réussir (mais elle n'est pas senser etre utiliser si le joueur joue comme prévu).
