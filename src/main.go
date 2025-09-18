@@ -80,19 +80,21 @@ func accessPitItems(d *Driver) {
 	}
 }
 
-func useEnergyDrink(d *Driver) {
-	for i, item := range d.PitItems {
-		if item == "Red Bull (Gives you wings)" {
+func useEnergyDrink(d *Driver, item string) bool {
+	for i, it := range d.PitItems {
+		if it == item {
 			d.PitItems = append(d.PitItems[:i], d.PitItems[i+1:]...)
 			d.CurrStamina += 50
 			if d.CurrStamina > d.MaxStamina {
 				d.CurrStamina = d.MaxStamina
 			}
 			fmt.Printf("Red Bull utilisé. Stamina: %d/%d\n", d.CurrStamina, d.MaxStamina)
-			return
+			fmt.Printf("Objet '%s' retiré de l'inventaire.\n", item)
+			return true
 		}
 	}
 	fmt.Println("Pas de Red Bull disponible :(")
+	return false
 }
 
 func readInput() string {
@@ -102,13 +104,13 @@ func readInput() string {
 
 func mainMenu(d *Driver) {
 	for {
-		fmt.Println("\n===========MAIN MENU============\n1. Info sur le pilote \n2. Accéder à l'inventaire\n3. Pit Stop\n4. Garage Mécanique\n5. Lancer le Grand Prix\n6. Qui sont les artistes cachés?\n7. Quitter\n=================================")
+		fmt.Println("\n===========MAIN MENU============\n1. Info sur le pilote \n2. Accéder à l'inventaire\n3. Pit Stop\n4. Garage Mécanique\n5. Lancer la Course d'entrainement\n6. Lancer le Grand Prix\n7. Qui sont les artistes cachés?\n8. Quitter\n=================================")
 		choice := readInput()
 		switch choice {
 		case "1":
 			displayInfo(d)
 		case "2":
-			accessPitItemsMenu(d)
+			accessPitItemsMenu(d, false, nil)
 		case "3":
 			pitShopMenu(d)
 		case "4":
@@ -116,8 +118,10 @@ func mainMenu(d *Driver) {
 		case "5":
 			trainingRace(d)
 		case "6":
-			fmt.Println("Les artistes cachés sont ABBA et Steven Spielberg")
+			grandPrix(d)
 		case "7":
+			fmt.Println("Les artistes cachés sont ABBA et Steven Spielberg")
+		case "8":
 			fmt.Println("Merci d'avoir joué(e)!")
 			return
 		default:
@@ -126,7 +130,16 @@ func mainMenu(d *Driver) {
 	}
 }
 
-func accessPitItemsMenu(d *Driver) {
+func containsSkill(d *Driver, skill string) bool {
+	for _, s := range d.Skills {
+		if s == skill {
+			return true
+		}
+	}
+	return false
+}
+
+func accessPitItemsMenu(d *Driver, inRace bool, r *Rival) {
 	for {
 		accessPitItems(d)
 		fmt.Println("Choisissez un objet à utiliser ou écrivez 'back' pour revenir en arrière:")
@@ -137,18 +150,50 @@ func accessPitItemsMenu(d *Driver) {
 		num, err := strconv.Atoi(input)
 		if err == nil && num > 0 && num <= len(d.PitItems) {
 			item := d.PitItems[num-1]
-			if strings.HasPrefix(item, "Racing") {
+			if inRace {
+				if item == "Skill Manuel: DRS Boost" || item == "Skill Manuel: One Shot" {
+					fmt.Println("Cet objet ne peut pas être utilisé pendant la course.")
+					continue
+				}
+				if item == "Casque de course" || item == "Combinaison de course" || item == "Bottes de course" {
+					fmt.Println("Les équipements ne peuvent pas être équipés pendant la course.")
+					continue
+				}
+			}
+			if (item == "Casque de course" || item == "Combinaison de course" || item == "Bottes de course") && !inRace {
 				equipGear(d, item)
-			}
-			if item == "Red Bull (Gives you wings)" {
-				useEnergyDrink(d)
-			}
-			if item == "Drapeau Jaune" {
-				useYellowFlag(d)
-			}
-			if item == "Skill Manuel: DRS Boost" {
-				learnSkill(d, "Dépassement aggressif")
-				removeFromPitItems(d, item)
+			} else if item == "Red Bull (Gives you wings)" {
+				if useEnergyDrink(d, item) {
+					if inRace {
+						fmt.Printf("Inventaire après utilisation: %v\n", d.PitItems)
+					}
+				}
+			} else if item == "Drapeau Jaune" {
+				if inRace && r != nil {
+					if useYellowFlag(d, r, item) {
+						fmt.Printf("Inventaire après utilisation: %v\n", d.PitItems)
+					}
+				} else {
+					if useYellowFlag(d, nil, item) {
+						fmt.Printf("Inventaire après utilisation: %v\n", d.PitItems)
+					}
+				}
+			} else if item == "Skill Manuel: DRS Boost" && !inRace {
+				learnSkill(d, "Dépassement agressif")
+				if removeFromPitItems(d, item) {
+					fmt.Printf("Objet '%s' retiré de l'inventaire.\n", item)
+					if inRace {
+						fmt.Printf("Inventaire après utilisation: %v\n", d.PitItems)
+					}
+				}
+			} else if item == "Skill Manuel: One Shot" && !inRace {
+				learnSkill(d, "One Shot")
+				if removeFromPitItems(d, item) {
+					fmt.Printf("Objet '%s' retiré de l'inventaire.\n", item)
+					if inRace {
+						fmt.Printf("Inventaire après utilisation: %v\n", d.PitItems)
+					}
+				}
 			} else {
 				fmt.Println("Item n'est pas utilisable ici.")
 			}
@@ -178,7 +223,7 @@ func removeFromPitItems(d *Driver, item string) bool {
 
 func pitShopMenu(d *Driver) {
 	for {
-		fmt.Println("\n=====INVENTAIRE=====\n1. Red Bull (Gives You Wings) (3 credits)\n2. Drapeau jaune (6 credits)\n3. Skill Manuel: DRS Boost (25 credits)\n4. Carbone (4 credits)\n5. Titane (7 credits)\n6. Caoutchouc (3 credits)\n7. Aerodynamique (1 credit)\n8. Upgrade inventaire (30 credits)\nback. Return")
+		fmt.Println("\n=====INVENTAIRE=====\n1. Red Bull (Gives You Wings) (3 credits)\n2. Drapeau jaune (6 credits)\n3. Skill Manuel: DRS Boost (25 credits)\n4. Skill Manuel: One Shot (30 credits)\n5. Carbone (4 credits)\n6. Titane (7 credits)\n7. Caoutchouc (3 credits)\n8. Aerodynamique (1 credit)\n9. Upgrade inventaire (30 credits)\nback. Return")
 		input := readInput()
 		if input == "back" {
 			return
@@ -188,7 +233,7 @@ func pitShopMenu(d *Driver) {
 		switch input {
 		case "1":
 			cost = 3
-			item = "Red Bull"
+			item = "Red Bull (Gives you wings)"
 		case "2":
 			cost = 6
 			item = "Drapeau Jaune"
@@ -196,18 +241,21 @@ func pitShopMenu(d *Driver) {
 			cost = 25
 			item = "Skill Manuel: DRS Boost"
 		case "4":
+			cost = 30
+			item = "Skill Manuel: One Shot"
+		case "5":
 			cost = 4
 			item = "Carbone"
-		case "5":
+		case "6":
 			cost = 7
 			item = "Titane"
-		case "6":
+		case "7":
 			cost = 3
 			item = "Caoutchouc"
-		case "7":
+		case "8":
 			cost = 1
 			item = "Aerodynamique"
-		case "8":
+		case "9":
 			upgradePitBox(d)
 			continue
 		default:
@@ -233,19 +281,47 @@ func isCrashed(d *Driver) bool {
 	return false
 }
 
-func useYellowFlag(d *Driver) {
-	for i := 0; i < 3; i++ {
-		d.CurrStamina -= 10
-		fmt.Printf("Penalty! Stamina: %d/%d\n", d.CurrStamina, d.MaxStamina)
-		time.Sleep(time.Second)
+func isRivalCrashed(r *Rival) bool {
+	if r.CurrStamina <= 0 {
+		r.CurrStamina = r.MaxStamina / 2
+		fmt.Printf("%s A CRASHÉ!!! Relancé avec: %d/%d stamina.\n", r.Name, r.CurrStamina, r.MaxStamina)
+		return true
 	}
-	isCrashed(d)
+	return false
+}
+
+func useYellowFlag(d *Driver, r *Rival, item string) bool {
+	if d == nil {
+		fmt.Println("Erreur: pilote non défini pour retirer l'objet.")
+		return false
+	}
+	if r != nil {
+		for i := 0; i < 3; i++ {
+			r.CurrStamina -= 10
+			fmt.Printf("Drapeau Jaune! Pénalité pour %s: Stamina: %d/%d\n", r.Name, r.CurrStamina, r.MaxStamina)
+			time.Sleep(time.Second)
+		}
+		isRivalCrashed(r)
+	} else {
+		for i := 0; i < 3; i++ {
+			d.CurrStamina -= 10
+			fmt.Printf("Penalty! Stamina: %d/%d\n", d.CurrStamina, d.MaxStamina)
+			time.Sleep(time.Second)
+		}
+		isCrashed(d)
+	}
+	if removeFromPitItems(d, item) {
+		fmt.Printf("Objet '%s' retiré de l'inventaire.\n", item)
+		return true
+	}
+	fmt.Println("Erreur: impossible de retirer l'objet de l'inventaire.")
+	return false
 }
 
 func learnSkill(d *Driver, skill string) {
 	for _, s := range d.Skills {
 		if s == skill {
-			fmt.Println("Skill deja connu.")
+			fmt.Println("Skill déjà connu.")
 			return
 		}
 	}
@@ -259,7 +335,7 @@ func driverCreation() Driver {
 		fmt.Print("Entrez le nom de votre pilote (lettres seulement): ")
 		name = readInput()
 		if strings.Trim(name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ") == "" {
-			name = (strings.ToLower(name))
+			name = strings.ToLower(name)
 			break
 		}
 		fmt.Println("Prénom invalide.")
@@ -368,7 +444,7 @@ func equipGear(d *Driver, item string) {
 		d.CurrStamina = d.MaxStamina
 	}
 	removeFromPitItems(d, item)
-	fmt.Printf("Equiper %s. Max Stamina est maintenant %d\n", item, d.MaxStamina)
+	fmt.Printf("Équipé %s. Max Stamina est maintenant %d\n", item, d.MaxStamina)
 }
 
 func upgradePitBox(d *Driver) {
@@ -394,26 +470,58 @@ func gainExp(d *Driver, exp int) {
 		d.MaxExp += 10
 		d.MaxStamina += 5
 		d.CurrStamina = d.MaxStamina
-		fmt.Printf("Level up à  %d! Stamina Max +5\n", d.Level)
+		fmt.Printf("Level up à %d! Stamina Max +5\n", d.Level)
 	}
 }
 
 func driverTurn(d *Driver, r *Rival, weather int) bool {
 	for {
-		fmt.Println("\nTon Tour:\n1. Attack\n2. Inventaire")
+		fmt.Println("\nTon Tour:")
+		fmt.Println("1. Attaque (Dépassement)")
+		if containsSkill(d, "Dépassement agressif") {
+			fmt.Println("2. Attaque (Dépassement agressif)")
+		}
+		if containsSkill(d, "One Shot") {
+			fmt.Println("3. Attaque (One Shot)")
+		}
+		fmt.Println("4. Inventaire")
 		choice := readInput()
 		switch choice {
 		case "1":
-			dmg := 5
+			dmg := 8
 			if weather == 1 {
 				dmg = int(float64(dmg) * 0.8)
 			}
+			d.CurrStamina -= 5
 			r.CurrStamina -= dmg
-			fmt.Printf("%s utilise dépassement %s pour %d dégats!\n", d.Name, r.Name, dmg)
+			fmt.Printf("%s utilise Dépassement sur %s pour %d dégâts!\n", d.Name, r.Name, dmg)
 			fmt.Printf("%s Stamina: %d/%d\n", r.Name, r.CurrStamina, r.MaxStamina)
 			return true
 		case "2":
-			accessPitItemsMenu(d)
+			if containsSkill(d, "Dépassement agressif") {
+				dmg := 12
+				if weather == 1 {
+					dmg = int(float64(dmg) * 0.8)
+				}
+				d.CurrStamina -= 10
+				r.CurrStamina -= dmg
+				fmt.Printf("%s utilise Dépassement agressif sur %s pour %d dégâts!\n", d.Name, r.Name, dmg)
+				fmt.Printf("%s Stamina: %d/%d\n", r.Name, r.CurrStamina, r.MaxStamina)
+				return true
+			} else {
+				fmt.Println("Skill non disponible.")
+			}
+		case "3":
+			if containsSkill(d, "One Shot (Seulement pour test)") {
+				r.CurrStamina = 0
+				fmt.Printf("%s utilise One Shot sur %s, le vainquant instantanément!\n", d.Name, r.Name)
+				fmt.Printf("%s Stamina: %d/%d\n", r.Name, r.CurrStamina, r.MaxStamina)
+				return true
+			} else {
+				fmt.Println("Skill non disponible.")
+			}
+		case "4":
+			accessPitItemsMenu(d, true, r)
 			return true
 		default:
 			fmt.Println("Choix invalide")
@@ -422,7 +530,21 @@ func driverTurn(d *Driver, r *Rival, weather int) bool {
 }
 
 func initRookieRival() Rival {
-	return Rival{Name: "Rookie Rival", MaxStamina: 40, CurrStamina: 40, AttackPts: 5, Initiative: 9}
+	return Rival{Name: "Rookie Rival", MaxStamina: 40, CurrStamina: 40, AttackPts: 10, Initiative: 9}
+}
+
+func initF1Rival(name string, rank int) Rival {
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	maxStamina := 40 + (10-rank)*2
+	attackPts := 8 + (10-rank)/2
+	initiative := 8 + rng.Intn(5)
+	return Rival{
+		Name:        name,
+		MaxStamina:  maxStamina,
+		CurrStamina: maxStamina,
+		AttackPts:   attackPts,
+		Initiative:  initiative,
+	}
 }
 
 func rivalPattern(r *Rival, d *Driver, turn int, weather int) {
@@ -434,17 +556,20 @@ func rivalPattern(r *Rival, d *Driver, turn int, weather int) {
 		dmg = int(float64(dmg) * 0.8)
 	}
 	d.CurrStamina -= dmg
-	fmt.Printf("%s accélére %s pour %d dégats!\n", r.Name, d.Name, dmg)
+	fmt.Printf("%s accélère sur %s pour %d dégâts!\n", r.Name, d.Name, dmg)
 	fmt.Printf("%s Stamina: %d/%d\n", d.Name, d.CurrStamina, d.MaxStamina)
 	isCrashed(d)
 }
 
 func trainingRace(d *Driver) {
 	r := initRookieRival()
-	rand.Seed(time.Now().UnixNano())
-	weather := rand.Intn(2)
-	if weather == 1 {
-		fmt.Println("La pluit est arrivée!")
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	weather := 0
+	if rng.Intn(100) < 20 {
+		weather = 1
+		fmt.Println("La pluie est arrivée!")
+	} else {
+		fmt.Println("Le temps est clair pour la course!")
 	}
 	turn := 1
 	playerFirst := d.Initiative >= r.Initiative
@@ -467,7 +592,7 @@ func trainingRace(d *Driver) {
 		} else {
 			rivalPattern(&r, d, turn, weather)
 			if d.CurrStamina <= 0 {
-				fmt.Println("YOU DIED!")
+				fmt.Println("YOU DIED")
 				break
 			}
 			if !driverTurn(d, &r, weather) {
@@ -480,6 +605,87 @@ func trainingRace(d *Driver) {
 			}
 		}
 		turn++
+	}
+	fmt.Println("Fin de la Course d'entrainement. Retour au menu principal.")
+}
+
+func grandPrix(d *Driver) {
+	f1Drivers := []string{
+		"Nico Hulkenberg",
+		"Isack Hadjar",
+		"Kimi antonelli",
+		"Alexander Albon",
+		"Lewis Hamilton",
+		"Charles Leclerc",
+		"George Russell",
+		"Max Verstappen",
+		"Lando Norris",
+		"Oscar Piastri",
+	}
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	weather := 0
+	if rng.Intn(100) < 20 {
+		weather = 1
+		fmt.Println("La pluie est arrivée!")
+	} else {
+		fmt.Println("Le temps est clair pour le Grand Prix!")
+	}
+	totalTurns := 0
+	defeated := 0
+	for i, driverName := range f1Drivers {
+		if totalTurns >= 70 {
+			fmt.Println("Vous avez dépassé la limite de 70 tours. Défaite!")
+			break
+		}
+		rival := initF1Rival(driverName, i+1)
+		fmt.Printf("\nCombat contre %s (Rival %d/10)\n", rival.Name, i+1)
+		playerFirst := d.Initiative >= rival.Initiative
+		for d.CurrStamina > 0 && rival.CurrStamina > 0 && totalTurns < 70 {
+			fmt.Printf("\nTour %d (Total: %d/70)\n", totalTurns+1, totalTurns+1)
+			if playerFirst {
+				if !driverTurn(d, &rival, weather) {
+					continue
+				}
+				if rival.CurrStamina <= 0 {
+					fmt.Printf("%s a été vaincu!\n", rival.Name)
+					defeated++
+					gainExp(d, 20)
+					break
+				}
+				rivalPattern(&rival, d, totalTurns+1, weather)
+				if d.CurrStamina <= 0 {
+					fmt.Println("YOU DIED! Défaite dans le Grand Prix!")
+					break
+				}
+			} else {
+				rivalPattern(&rival, d, totalTurns+1, weather)
+				if d.CurrStamina <= 0 {
+					fmt.Println("YOU DIED! Défaite dans le Grand Prix!")
+					break
+				}
+				if !driverTurn(d, &rival, weather) {
+					continue
+				}
+				if rival.CurrStamina <= 0 {
+					fmt.Printf("%s a été vaincu!\n", rival.Name)
+					defeated++
+					gainExp(d, 20)
+					break
+				}
+			}
+			totalTurns++
+		}
+		if d.CurrStamina <= 0 || totalTurns >= 70 {
+			break
+		}
+	}
+	if defeated == len(f1Drivers) && d.CurrStamina > 0 && totalTurns < 70 {
+		fmt.Println("You are the World Champion!")
+		gainExp(d, 50)
+	} else if totalTurns >= 70 {
+		fmt.Println("Limite de tours atteinte. Vous n'êtes pas champion du monde.")
+	} else if d.CurrStamina <= 0 {
+		fmt.Println("Vous avez crashé. Défaite dans le Grand Prix!")
 	}
 	fmt.Println("Fin du Grand Prix. Retour au menu principal.")
 }
